@@ -1,13 +1,501 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>gem-spawneng-ux</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpawnEngine: Interactive Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(20, 184, 166, 0.5); }
+            50% { opacity: 0.7; box-shadow: 0 0 20px rgba(20, 184, 166, 0.2); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+        
+        .tab-active {
+            border-bottom: 2px solid #14b8a6;
+            color: #14b8a6;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <nav class="bg-slate-900 border-r border-slate-800 w-full md:w-64 flex-shrink-0 flex flex-row md:flex-col justify-between p-4 z-20">
+        <div class="flex items-center space-x-2 md:mb-8">
+            <div class="w-8 h-8 bg-teal-500 rounded flex items-center justify-center font-bold text-slate-900">S</div>
+            <span class="text-xl font-bold tracking-wider">SPAWN<span class="text-teal-500">ENGINE</span></span>
+        </div>
+
+        <div class="flex flex-row md:flex-col space-x-4 md:space-x-0 md:space-y-2 overflow-x-auto md:overflow-visible w-full">
+            <button onclick="showSection('vision')" id="nav-vision" class="nav-btn text-left px-4 py-3 rounded hover:bg-slate-800 transition-colors text-sm font-semibold flex items-center text-teal-400 bg-slate-800">
+                <span class="mr-3">⦿</span> Vision & Core
+            </button>
+            <button onclick="showSection('mesh')" id="nav-mesh" class="nav-btn text-left px-4 py-3 rounded hover:bg-slate-800 transition-colors text-sm font-semibold flex items-center text-slate-400">
+                <span class="mr-3">☷</span> The Event Mesh
+            </button>
+            <button onclick="showSection('economy')" id="nav-economy" class="nav-btn text-left px-4 py-3 rounded hover:bg-slate-800 transition-colors text-sm font-semibold flex items-center text-slate-400">
+                <span class="mr-3">📊</span> Economy & Rarity
+            </button>
+            <button onclick="showSection('architecture')" id="nav-architecture" class="nav-btn text-left px-4 py-3 rounded hover:bg-slate-800 transition-colors text-sm font-semibold flex items-center text-slate-400">
+                <span class="mr-3">🏗️</span> Architecture
+            </button>
+            <button onclick="showSection('roadmap')" id="nav-roadmap" class="nav-btn text-left px-4 py-3 rounded hover:bg-slate-800 transition-colors text-sm font-semibold flex items-center text-slate-400">
+                <span class="mr-3">🚀</span> Roadmap
+            </button>
+        </div>
+
+        <div class="hidden md:block mt-auto pt-6 border-t border-slate-800">
+            <div class="text-xs text-slate-500 font-mono">
+                STATUS: <span class="text-green-500">ONLINE</span><br>
+                NETWORK: BASE<br>
+                VERSION: 0.1.0
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 overflow-y-auto relative bg-slate-950 p-4 md:p-8" id="main-content">
+        
+        <section id="section-vision" class="space-y-8 animate-fade-in">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-extrabold mb-2 text-white">The Hub, Not Another App.</h1>
+                    <p class="text-lg text-slate-400">SpawnEngine is a protocol and UX hub that sits between Base, Zora, and Farcaster. It normalizes all activity into a single ecosystem with its own economy and identity.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-teal-500/50 transition-all">
+                        <div class="text-teal-500 text-2xl mb-3">⟲</div>
+                        <h3 class="text-xl font-bold text-white mb-2">One Event Mesh</h3>
+                        <p class="text-slate-400 text-sm">All activity (mints, burns, social casts) is normalized into a standard event shape. This powers a unified ticker, leaderboards, and "Luck Engine" from a single source of truth.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-teal-500/50 transition-all">
+                        <div class="text-indigo-500 text-2xl mb-3">❖</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Multi-Pack Protocol</h3>
+                        <p class="text-slate-400 text-sm">Not just one type of pack. Support for Token Packs, NFT Packs, Hybrid Series, and Zora Coin Series. All plug into the same UX.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-teal-500/50 transition-all">
+                        <div class="text-teal-500 text-2xl mb-3">⚡</div>
+                        <h3 class="text-xl font-bold text-white mb-2">SPA Experience</h3>
+                        <p class="text-slate-400 text-sm">A "Native Mini-App" feel. Dense, clear hierarchy. No empty loading screens. Built for mobile-first exploration.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-teal-500/50 transition-all">
+                        <div class="text-indigo-500 text-2xl mb-3">💎</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Economy Guardrails</h3>
+                        <p class="text-slate-400 text-sm">Strict rules on gambling (Fragment/Shard only). High-tier assets are protected. Creators earn revenue share directly.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+                    <h3 class="text-sm font-mono text-slate-500 uppercase tracking-widest mb-4">Live System Status Simulation</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-slate-800 rounded-lg">
+                            <div class="text-2xl font-bold text-white" id="stat-active-series">3</div>
+                            <div class="text-xs text-slate-500">Active Series</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded-lg">
+                            <div class="text-2xl font-bold text-teal-400" id="stat-events-hr">1,240</div>
+                            <div class="text-xs text-slate-500">Events / Hour</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded-lg">
+                            <div class="text-2xl font-bold text-indigo-400" id="stat-volume">$42k</div>
+                            <div class="text-xs text-slate-500">Vol (24h)</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded-lg">
+                            <div class="text-2xl font-bold text-white">Base</div>
+                            <div class="text-xs text-slate-500">Home Chain</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-mesh" class="space-y-8 hidden animate-fade-in">
+            <div class="max-w-5xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-extrabold mb-2 text-white">The One Event Mesh</h1>
+                    <p class="text-lg text-slate-400">The heart of SpawnEngine. Every action is an event. This visualizer demonstrates how diverse inputs (social, financial, gaming) normalize into one stream.</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                            <h3 class="font-bold text-white mb-4">Event Composition</h3>
+                            <div class="chart-container" style="height: 200px;">
+                                <canvas id="meshDistributionChart"></canvas>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-4 italic">Real-time distribution of event types entering the mesh.</p>
+                        </div>
+                        
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                            <h3 class="font-bold text-white mb-4">Filter Mesh</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleMeshFilter('pack')" class="form-checkbox text-teal-500 rounded bg-slate-800 border-slate-600">
+                                    <span class="text-sm text-slate-300">Pack Opens / Burns</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleMeshFilter('market')" class="form-checkbox text-indigo-500 rounded bg-slate-800 border-slate-600">
+                                    <span class="text-sm text-slate-300">Market (Swaps/Bids)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleMeshFilter('social')" class="form-checkbox text-pink-500 rounded bg-slate-800 border-slate-600">
+                                    <span class="text-sm text-slate-300">Social (Casts/Discuss)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden flex flex-col h-[600px]">
+                            <div class="p-4 border-b border-slate-800 bg-slate-800/50 flex justify-between items-center">
+                                <span class="text-sm font-mono text-teal-400 animate-pulse">● LIVE FEED</span>
+                                <span class="text-xs text-slate-500">Standard Event Shape v1</span>
+                            </div>
+                            <div id="mesh-feed" class="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-economy" class="space-y-8 hidden animate-fade-in">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-extrabold mb-2 text-white">Economy & Rarity</h1>
+                    <p class="text-lg text-slate-400">SpawnEngine prevents hyper-inflation through strict burning rules and a logarithmic value scale. Gambling is restricted to low-tier assets.</p>
+                </header>
+
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 mb-8">
+                    <h3 class="font-bold text-white mb-4">Rarity Value Multipliers</h3>
+                    <p class="text-sm text-slate-400 mb-6">Visualizing the massive value gap between a common Fragment and a Relic. Base Unit Cost = 100k.</p>
+                    <div class="chart-container">
+                        <canvas id="rarityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 p-6 rounded-xl border border-l-4 border-red-500">
+                        <h3 class="font-bold text-white mb-2">The Gamble Rule</h3>
+                        <p class="text-slate-400 text-sm">Gambling mechanics are <strong>ONLY</strong> enabled for <span class="text-white">Fragment</span> and <span class="text-white">Shard</span> rarities. High-value assets (Core+) are protected from degeneration to ensure economic stability.</p>
+                    </div>
+                    <div class="bg-slate-900 p-6 rounded-xl border border-l-4 border-teal-500">
+                        <h3 class="font-bold text-white mb-2">Rewards Rail</h3>
+                        <p class="text-slate-400 text-sm">Every pack open yields 5-10% of value as <strong>SpawnCoin/XP</strong>. This is minted utility, not a treasury drain. It keeps the loop moving even on "bad" pulls.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-architecture" class="space-y-8 hidden animate-fade-in">
+            <div class="max-w-6xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-extrabold mb-2 text-white">Protocol Architecture</h1>
+                    <p class="text-lg text-slate-400">A modular system where Creators plug in contracts. The "Multi-pack mesh" is architecture, not just a feature.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <div class="space-y-4">
+                        <div class="text-center font-mono text-slate-500 mb-2">INPUTS (CREATOR FORGE)</div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 hover:bg-slate-700 transition cursor-help relative group">
+                            <div class="font-bold text-white">TokenPack Series</div>
+                            <div class="text-xs text-slate-400">ERC20 Standard Packs</div>
+                            <div class="absolute z-10 hidden group-hover:block w-64 bg-black border border-teal-500 p-3 rounded -top-2 left-full ml-2 shadow-xl">
+                                <p class="text-xs text-white">The standard pack type. Burn tokens to open.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 hover:bg-slate-700 transition cursor-help group relative">
+                            <div class="font-bold text-white">NFT Pack Series</div>
+                            <div class="text-xs text-slate-400">Coming Soon</div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 hover:bg-slate-700 transition cursor-help group relative">
+                            <div class="font-bold text-white">Zora Coin Series</div>
+                            <div class="text-xs text-slate-400">Executes Zora buys/rails</div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 hover:bg-slate-700 transition cursor-help group relative">
+                            <div class="font-bold text-white">Utility Modules</div>
+                            <div class="text-xs text-slate-400">XP, Streaks, Access</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 relative">
+                        <div class="text-center font-mono text-teal-500 mb-2 font-bold">CORE PROTOCOL</div>
+                        <div class="absolute top-10 -left-6 bottom-10 border-l-2 border-dashed border-slate-700 hidden md:block"></div>
+                        
+                        <div class="bg-slate-900 p-6 rounded-xl border-2 border-teal-600 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+                            <h3 class="font-bold text-teal-400 mb-4 text-center">PackFactory & Registry</h3>
+                            <div class="space-y-2">
+                                <div class="bg-slate-800 p-3 rounded text-center text-sm border border-slate-600">
+                                    <span class="block font-bold text-white">ReserveGuard</span>
+                                    <span class="text-[10px] text-slate-400">Safety Gate / Buffer</span>
+                                </div>
+                                <div class="bg-slate-800 p-3 rounded text-center text-sm border border-slate-600">
+                                    <span class="block font-bold text-white">UtilityPackRouter</span>
+                                    <span class="text-[10px] text-slate-400">XP / Claims / Referrals</span>
+                                </div>
+                                <div class="bg-slate-800 p-3 rounded text-center text-sm border border-slate-600">
+                                    <span class="block font-bold text-white">Event Normalizer</span>
+                                    <span class="text-[10px] text-slate-400">Raw Data -> Event Mesh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 relative">
+                        <div class="text-center font-mono text-slate-500 mb-2">OUTPUTS (APP SURFACES)</div>
+                        <div class="absolute top-10 -left-6 bottom-10 border-l-2 border-dashed border-slate-700 hidden md:block"></div>
+
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                            <div class="font-bold text-white">Trading Wall</div>
+                            <div class="text-xs text-slate-400">Live feed + Actions</div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                            <div class="font-bold text-white">Pull Lab</div>
+                            <div class="text-xs text-slate-400">Burn / Synth / Gamble</div>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                            <div class="font-bold text-white">SpawnFeed</div>
+                            <div class="text-xs text-slate-400">Social Vertical Feed</div>
+                        </div>
+                         <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                            <div class="font-bold text-white">BubbleChat</div>
+                            <div class="text-xs text-slate-400">Event-threaded Chat</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="section-roadmap" class="space-y-8 hidden animate-fade-in">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-extrabold mb-2 text-white">Roadmap</h1>
+                    <p class="text-lg text-slate-400">From a premium compact UI to a full Onchain Operating System. Click phases to explore.</p>
+                </header>
+
+                <div class="relative border-l-4 border-slate-800 ml-4 space-y-8" id="roadmap-container">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const eventTypes = ['pack_open', 'market_buy', 'burn', 'cast', 'craft', 'whale_alert'];
+        const actors = ['0xAlpha', 'Whale.eth', 'AnonUser', 'CreatorX', 'SniperBot'];
+        const rarities = [
+            { name: 'Fragment', color: 'text-slate-500' },
+            { name: 'Shard', color: 'text-teal-400' },
+            { name: 'Core', color: 'text-indigo-400' },
+            { name: 'Artifact', color: 'text-amber-400' },
+            { name: 'Relic', color: 'text-red-500' }
+        ];
+
+        const roadmapData = [
+            { phase: "Phase 1: Mesh HUD (v0.x)", status: "current", details: "Premium compact UI, Unified Mock Mesh, BubbleChat, Creator Forge demos." },
+            { phase: "Phase 2: Read-Only Onchain", status: "pending", details: "Deploy Factory/Guard on Base Testnet. Index events to fill Mesh live." },
+            { phase: "Phase 3: Real Packs & Economy (v1.0)", status: "pending", details: "Buy/Open via TokenPackSeries. Luck Engine with real data." },
+            { phase: "Phase 4: XP/Gamble/Rewards", status: "pending", details: "UtilityPackRouter live. Fragment/Shard gamble enabled. Quests & Streaks." },
+            { phase: "Phase 5: Multi-Module Protocol", status: "pending", details: "NFT Packs, Hybrid Series, Zora Coin Series. Verified Layer." },
+            { phase: "Phase 6: Onchain OS", status: "pending", details: "Full contract builder flows. SpawnAPI standard. SpawnBot automation." }
+        ];
+
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-slate-800', 'text-teal-400');
+                el.classList.add('text-slate-400');
+            });
+            document.getElementById(`nav-${sectionId}`).classList.add('bg-slate-800', 'text-teal-400');
+            document.getElementById(`nav-${sectionId}`).classList.remove('text-slate-400');
+        }
+
+        const meshFeed = document.getElementById('mesh-feed');
+        let meshFilters = { pack: true, market: true, social: true };
+
+        function toggleMeshFilter(type) {
+            meshFilters[type] = !meshFilters[type];
+        }
+
+        function createEvent() {
+            const type = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            
+            if (type.includes('pack') && !meshFilters.pack) return;
+            if (type.includes('burn') && !meshFilters.pack) return;
+            if ((type.includes('buy') || type.includes('whale')) && !meshFilters.market) return;
+            if (type.includes('cast') && !meshFilters.social) return;
+
+            const actor = actors[Math.floor(Math.random() * actors.length)];
+            const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+            const value = (Math.random() * 1000).toFixed(0);
+            
+            const div = document.createElement('div');
+            div.className = "flex items-center space-x-2 p-2 rounded hover:bg-slate-800 transition animate-fade-in border-l-2 border-slate-700";
+            
+            if (type === 'whale_alert') div.classList.replace('border-slate-700', 'border-red-500');
+            if (type === 'pack_open') div.classList.replace('border-slate-700', 'border-teal-500');
+
+            div.innerHTML = `
+                <span class="text-xs text-slate-500 w-16">${new Date().toLocaleTimeString()}</span>
+                <span class="font-bold text-slate-300 w-24 truncate">${actor}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-slate-800 uppercase tracking-wider text-slate-400 w-24 text-center">${type}</span>
+                <span class="flex-1 ${rarity.color}">${type === 'pack_open' ? `Pulled ${rarity.name}` : `Action Value: $${value}`}</span>
+            `;
+
+            meshFeed.prepend(div);
+            if (meshFeed.children.length > 20) {
+                meshFeed.lastElementChild.remove();
+            }
+
+            document.getElementById('stat-events-hr').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString();
+        }
+
+        function initCharts() {
+            const ctxMesh = document.getElementById('meshDistributionChart').getContext('2d');
+            new Chart(ctxMesh, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pack Actions', 'Market/Trade', 'Social/Casts', 'Craft/Burn'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#14b8a6', '#6366f1', '#ec4899', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            const ctxRarity = document.getElementById('rarityChart').getContext('2d');
+            new Chart(ctxRarity, {
+                type: 'bar',
+                data: {
+                    labels: ['Fragment', 'Shard', 'Core', 'Artifact', 'Relic'],
+                    datasets: [{
+                        label: 'Estimated Value (Units)',
+                        data: [10000, 110000, 400000, 4000000, 20000000],
+                        backgroundColor: [
+                            '#64748b',
+                            '#14b8a6',
+                            '#6366f1',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    label += new Intl.NumberFormat().format(context.parsed.y);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRoadmap() {
+            const container = document.getElementById('roadmap-container');
+            container.innerHTML = roadmapData.map((item, index) => `
+                <div class="relative pl-8 group">
+                    <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-slate-900 ${item.status === 'current' ? 'bg-teal-500 animate-pulse-glow' : 'bg-slate-700 group-hover:bg-slate-500'}"></div>
+                    <h3 class="text-xl font-bold text-white group-hover:text-teal-400 transition">${item.phase}</h3>
+                    <p class="text-slate-400 text-sm mt-1">${item.details}</p>
+                </div>
+            `).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderRoadmap();
+            setInterval(createEvent, 1500);
+            
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            `;
+            document.head.appendChild(style);
+        });
+
+    </script>
+</body>
 </html>
